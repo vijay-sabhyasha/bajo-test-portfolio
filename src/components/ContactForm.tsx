@@ -23,7 +23,7 @@ export const ContactForm = () => {
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     try {
-      const response = await fetch("https://formsubmit.co/ajax/dbandita362@gmail.com", {
+      const response = await fetch("https://formsubmit.co/ajax/vijayakabajo@gmail.com", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

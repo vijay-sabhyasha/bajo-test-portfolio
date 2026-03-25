@@ -10,15 +10,15 @@ const SocialCard = () => {
   const socials = [
     {
       icon: RiLinkedinFill,
-      href: "https://www.linkedin.com/in/banditadas-dev/",
+      href: "https://www.linkedin.com/in/vijayakabajo/",
     },
     {
       icon: RiGithubLine,
-      href: "https://github.com/BanditaDas",
+      href: "https://github.com/vijayakabajo",
     },
     {
       icon: RiInstagramLine,
-      href: "https://www.instagram.com/_bandita.9_/",
+      href: "#",
     },
     {
       icon: BiLogoGmail,

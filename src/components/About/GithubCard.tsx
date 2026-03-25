@@ -19,12 +19,12 @@ const GithubCard = () => {
 
       <div className="flex justify-center w-full overflow-hidden">
         <a
-          href="https://github.com/BanditaDas"
+          href="https://github.com/vijayakabajo"
           target="_blank"
           rel="noopener noreferrer"
         >
           <GitHubCalendar
-            username="BanditaDas"
+            username="vijayakabajo"
             blockSize={10}
             blockMargin={3}
             fontSize={10}

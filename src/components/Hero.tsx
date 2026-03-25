@@ -35,7 +35,7 @@ const ScrambleText = () => {
         
         if (frame >= maxFrames) {
           clearInterval(interval);
-          timeoutId = setTimeout(triggerScramble, 3000);
+          timeoutId = setTimeout(triggerScramble, 2000);
         }
       }, 50);
     };
@@ -51,7 +51,7 @@ export const Hero: React.FC = () => {
   return (
     <section className="relative h-screen flex flex-col justify-center px-4 md:px-8 overflow-hidden bg-[#EBEAE9] dark:bg-[#141517]">
       {/* 3D Avatar Video with transparent background */}
-      <AvatarVideo />
+      {/* <AvatarVideo /> */}
 
       <div>
         <div className="flex justify-between items-end mb-8 min-[2000px]:mb-[4vh] relative z-20">

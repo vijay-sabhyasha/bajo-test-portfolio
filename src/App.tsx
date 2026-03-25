@@ -8,7 +8,6 @@ import { Work } from './components/Work';
 import { Footer } from './components/Footer';
 import { ThemeProvider } from './ThemeContext';
 import Bento from './components/About/Bento';
-import { Certificates } from './components/Certificates';
 import { PrivacyPolicy } from './components/PrivacyPolicy';
 import { TermsAndConditions } from './components/TermsAndConditions';
 
@@ -51,7 +50,6 @@ export default function App() {
                 <Hero />
                 <Bento />
                 <Work />
-                <Certificates />
               </>
             } />
             <Route path="/privacy" element={<PrivacyPolicy />} />

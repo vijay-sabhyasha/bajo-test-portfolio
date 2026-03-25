@@ -7,7 +7,7 @@ const ContactCard = () => {
   const [copied, setCopied] = useState(false);
 
   const copyEmail = () => {
-    navigator.clipboard.writeText("dbandita362@gmail.com");
+    navigator.clipboard.writeText("vijayakabajo@gmail.com");
     setCopied(true);
 
     setTimeout(() => {

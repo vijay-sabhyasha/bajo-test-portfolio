@@ -57,56 +57,14 @@ export const Footer: React.FC = () => {
                 </button>
               </div>
             </div>
-
-            {/* Right Section - Modern Form */}
-            {/* <div className="w-full lg:w-100">
-              <form action="https://formsubmit.co/vijayakabajo@gmail.com" method="POST" className="space-y-4">
-                <input type="hidden" name="_subject" value="New submission from your portfolio!" />
-                <input type="hidden" name="_captcha" value="false" />
-                <input type="hidden" name="_next" value={window.location.href} />
-                
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-gray-400 px-1">Name</label>
-                  <input 
-                    type="text" 
-                    name="name"
-                    required
-                    className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-black/30 dark:focus:border-white/30 focus:bg-black/10 dark:focus:bg-white/10 transition-all text-sm text-black dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-600"
-                    placeholder="John Doe"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-gray-400 px-1">Email</label>
-                  <input 
-                    type="email" 
-                    name="email"
-                    required
-                    className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-black/30 dark:focus:border-white/30 focus:bg-black/10 dark:focus:bg-white/10 transition-all text-sm text-black dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-600"
-                    placeholder="john@example.com"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-gray-400 px-1">Message</label>
-                  <textarea 
-                    name="message"
-                    required
-                    rows={3}
-                    className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-black/30 dark:focus:border-white/30 focus:bg-black/10 dark:focus:bg-white/10 transition-all text-sm text-black dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-600 resize-none"
-                    placeholder="Tell me about your project..."
-                  />
-                </div>
-                <button type="submit" className="w-full bg-black text-white dark:bg-white dark:text-black font-semibold rounded-xl px-4 py-3 hover:bg-gray-800 dark:hover:bg-gray-200 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 mt-2 text-sm">
-                  Send Message
-                </button>
-              </form>
-            </div> */}
+            {/* Contact FORM */}
             <ContactForm />
           </div>
 
           {/* Bottom Section */}
           <div className="pt-3 md:pt-3 lg:mt-6 min-[2000px]:mt-[3vh] min-[2000px]:pt-[2vh] border-t border-black/10 dark:border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 min-[2000px]:gap-[2vw]">
             <p className="text-xs min-[2000px]:text-[0.8vw] text-gray-500">
-              © {new Date().getFullYear()} vijayakabajo. All rights reserved.
+              © {new Date().getFullYear()} Vijayakabajo. All rights reserved.
             </p>
             <div className="flex gap-6 min-[2000px]:gap-[3vw]">
               <a

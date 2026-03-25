@@ -51,7 +51,7 @@ export const TermsAndConditions: React.FC = () => (
       <section className="mb-8 min-[2000px]:mb-[4vh]">
         <h2 className="text-2xl min-[2000px]:text-[1.8vw] font-semibold mb-4 min-[2000px]:mb-[2vh]">6. Contact Information</h2>
         <p className="leading-relaxed mb-4 min-[2000px]:mb-[2vh] min-[2000px]:text-[1vw] min-[2000px]:leading-[1.8vw]">
-          If you have any questions or concerns regarding these Terms and Conditions, please contact me through the contact form on this website or directly at <a href="mailto:dbandita362@gmail.com" className="underline hover:opacity-70 transition-opacity">dbandita362@gmail.com</a>.
+          If you have any questions or concerns regarding these Terms and Conditions, please contact me through the contact form on this website or directly at <a href="mailto:vijayakabajo@gmail.com" className="underline hover:opacity-70 transition-opacity">vijayakabajo@gmail.com</a>.
         </p>
       </section>
     </div>

@@ -8,25 +8,36 @@ import {
   RiNodejsLine,
 } from "react-icons/ri";
 
-import { HiDatabase } from "react-icons/hi";
-import { GrJava } from "react-icons/gr";
 import { FiGithub } from "react-icons/fi";
-import { MdAnimation } from "react-icons/md";
-import { SiGsap, SiExpress } from "react-icons/si";
+import { SiPython } from "react-icons/si";
+import { BiLogoDjango } from "react-icons/bi";
+import { DiDjango } from "react-icons/di";
+import { BiTransfer } from "react-icons/bi";
+import { BiLogoGoogleCloud } from "react-icons/bi";
+import { SiPandas } from "react-icons/si";
+import { DiRedis } from "react-icons/di";
+import { BiLogoPostgresql } from "react-icons/bi";
+import { TbBrandMysql } from "react-icons/tb";
+import { TbWorldDownload } from "react-icons/tb";
+import { SiPostman } from "react-icons/si";
+
+
 
 const StackCard = () => {
-  const stack = [
-    { name: "JavaScript", icon: RiJavascriptFill },
-    { name: "React JS", icon: RiReactjsLine },
-    { name: "Tailwind CSS", icon: RiTailwindCssFill },
-    { name: "GSAP", icon: SiGsap },
-    { name: "Locomotive JS", icon: MdAnimation },
-    { name: "Node", icon: RiNodejsLine },
-    { name: "MongoDB", icon: HiDatabase },
-    { name: "Express", icon: SiExpress },
-    { name: "Java", icon: GrJava },
-    { name: "Github", icon: FiGithub },
-  ];
+const stack = [
+  { name: "Python", icon: SiPython },
+  { name: "Django", icon: DiDjango },
+  { name: "Django REST", icon: BiLogoDjango },
+  { name: "MySQL", icon: TbBrandMysql },
+  { name: "PostgreSQL", icon: BiLogoPostgresql },
+  { name: "Redis", icon: DiRedis },
+  { name: "WebSockets", icon: BiTransfer },
+  { name: "Pandas", icon: SiPandas },
+  { name: "Postman", icon: SiPostman },
+  { name: "Git", icon: FiGithub },
+  { name: "Web Scraping", icon: TbWorldDownload },
+  { name: "Google Cloud", icon: BiLogoGoogleCloud },
+];
 
   return (
     <div>
