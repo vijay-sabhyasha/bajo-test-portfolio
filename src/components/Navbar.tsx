@@ -30,7 +30,7 @@ export const Navbar: React.FC = () => {
     >
       <div className="flex items-end gap-0.75 min-[2000px]:gap-[0.5vw] select-none">
         <span className="text-2xl lg:text-[clamp(24px,2.4vw,36px)] min-[2000px]:text-[2vw] font-bold tracking-tighter text-black dark:text-white leading-none">
-          Bd
+          Vj
         </span>
         <div className="w-2 h-2 mb-1 lg:w-2.5 lg:h-2.5 lg:mb-1.5 min-[2000px]:w-[0.6vw] min-[2000px]:h-[0.6vw] min-[2000px]:mb-[0.5vh] bg-[#F05641] rounded-full" />
       </div>

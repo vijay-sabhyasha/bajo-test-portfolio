@@ -142,7 +142,7 @@ export const Footer: React.FC = () => {
 
       {/* Huge Name Background */}
       <div className="relative z-0 w-full flex justify-center pointer-events-none translate-y-[15%]">
-        <GlossyName name="Vijay" />
+        <GlossyName name="BAJO" />
       </div>
 
       {/* Monitor Popup */}
