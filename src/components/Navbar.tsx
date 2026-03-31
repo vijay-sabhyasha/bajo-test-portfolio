@@ -16,7 +16,7 @@ export const Navbar: React.FC = () => {
   useEffect(() => {
     const updateRotation = () => {
       if (gearRef.current) {
-        const rotation = lastScrollY.current * 0.5; // Rotate 2 degrees per 1000px scrolled
+        const rotation = lastScrollY.current * 0.3; // Rotate 2 degrees per 1000px scrolled
         gearRef.current.style.transform = `rotate(${rotation}deg)`;
       }
       ticking.current = false;
@@ -53,14 +53,14 @@ export const Navbar: React.FC = () => {
     >
       {/* Logo + Gear */}
       <div className="flex items-center gap-1 min-[2000px]:gap-[0.5vw] select-none">
-        <span className="text-2xl lg:text-[clamp(24px,2.4vw,36px)] min-[2000px]:text-[2vw] font-bold tracking-tighter text-black dark:text-white leading-none">
+        <span className="text-2xl lg:text-[clamp(24px,2.4vw,36px)] min-[2000px]:text-[2vw] font-bold tracking-tighter text-gray-600 dark:text-white leading-none">
           VJ
         </span>
 
         {/* Rotating Gear */}
         <FaCog
           ref={gearRef}
-          className="w-4 h-4 lg:w-5 lg:h-5 ml-2"
+          className="w-4 h-4 lg:w-5 lg:h-5 ml-2 text-gray-600 dark:text-white"
         />
 
         {/* <div className="w-2 h-2 mb-1 lg:w-2.5 lg:h-2.5 lg:mb-1.5 min-[2000px]:w-[0.6vw] min-[2000px]:h-[0.6vw] min-[2000px]:mb-[0.5vh] bg-[#F05641] rounded-full" /> */}

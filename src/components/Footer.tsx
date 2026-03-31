@@ -50,9 +50,9 @@ export const Footer: React.FC = () => {
                   onClick={() => setShowPopup(true)}
                   className="group flex items-center gap-3 min-[2000px]:gap-[1vw] px-5 py-2.5 min-[2000px]:px-[2vw] min-[2000px]:py-[1vh] bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-black/10 dark:border-white/10 rounded-full min-[2000px]:rounded-[1.5vw] transition-all duration-300 text-sm min-[2000px]:text-[1vw] font-medium w-fit"
                 >
-                  <span>Buy me a monitor</span>
+                  <span>Buy me a Mac mini</span>
                   <span className="text-xl min-[2000px]:text-[1.5vw] group-hover:scale-110 transition-transform duration-300">
-                    🖥️ 🤪
+                    🤪
                   </span>
                 </button>
               </div>
@@ -128,15 +128,14 @@ export const Footer: React.FC = () => {
               </button>
 
               <div className="text-center pt-4">
-                <span className="text-6xl min-[2000px]:text-[4vw] mb-6 min-[2000px]:mb-[3vh] block">🖥️</span>
+                <span className="text-6xl min-[2000px]:text-[4vw] mb-6 min-[2000px]:mb-[3vh] block">👏</span>
                 <h3 className="text-2xl min-[2000px]:text-[1.8vw] font-bold text-zinc-900 dark:text-white mb-4 min-[2000px]:mb-[2vh]">
                   Thanks for the support!
                 </h3>
                 <p className="text-zinc-600 dark:text-zinc-400 mb-8 min-[2000px]:mb-[4vh] leading-relaxed text-sm min-[2000px]:text-[1vw] min-[2000px]:leading-[1.8]">
                   I really appreciate the thought! While I'm not actually
-                  accepting monitor donations right now, the best way you can
-                  support me is by checking out my projects and connecting with
-                  me on LinkedIn.
+                  accepting any donations right now, the best way you can
+                  support me is connecting with me on LinkedIn.
                 </p>
 
                 <div className="flex justify-center">
