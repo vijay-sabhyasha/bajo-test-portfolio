@@ -9,7 +9,7 @@ export const Navbar: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const { theme, toggleTheme } = useTheme();
 
-  const gearRef = useRef<SVGSVGElement | null>(null);
+  const gearRef = useRef<HTMLDivElement | null>(null);
   const lastScrollY = useRef(0);
   const ticking = useRef(false);
 
@@ -57,10 +57,11 @@ export const Navbar: React.FC = () => {
           Vs        </span>
 
         {/* Rotating Gear */}
-        <FaCog
-          ref={gearRef}
-          className="w-4 h-4 lg:w-5 lg:h-5 ml-2 text-gray-600 dark:text-white"
-        />
+        <div ref={gearRef}>
+          <FaCog
+            className="w-4 h-4 lg:w-5 lg:h-5 ml-2 text-gray-600 dark:text-white"
+          />
+        </div>
 
         {/* <div className="w-2 h-2 mb-1 lg:w-2.5 lg:h-2.5 lg:mb-1.5 min-[2000px]:w-[0.6vw] min-[2000px]:h-[0.6vw] min-[2000px]:mb-[0.5vh] bg-[#F05641] rounded-full" /> */}
       </div>

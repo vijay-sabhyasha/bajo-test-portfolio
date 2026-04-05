@@ -21,47 +21,54 @@ export const SceneWrapper: React.FC<SceneWrapperProps> = ({
   const isInView = useInView(containerRef, { amount: 0.1, once: false });
   const { theme } = useTheme();
 
+  const [scale, setScale] = React.useState(typeof window !== 'undefined' && window.innerWidth < 768 ? mobileScale : 1);
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      setScale(window.innerWidth < 768 ? mobileScale : 1);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [mobileScale]);
+
   return (
-    <div ref={containerRef} className="w-full h-full relative">
-      {isInView ? (
-        <Canvas
-          camera={{ position: cameraPosition, fov }}
-          dpr={[1, 2]} // Cap pixel ratio for performance
-          gl={{
-            antialias: true,
-            alpha: true,
-            powerPreference: "high-performance"
-          }}
-        >
-          <Suspense fallback={null}>
-            {/* Common Lighting Setup */}
-            <ambientLight intensity={theme === 'dark' ? 0.2 : 0.6} />
-            <directionalLight
-              position={[10, 10, 5]}
-              intensity={theme === 'dark' ? 0.8 : 1.2}
-              color={theme === 'dark' ? '#aaa' : '#fff'}
-            />
-            {theme === 'dark' && (
-              <pointLight position={[-10, -10, -5]} intensity={0.5} color="#00ffcc" /> // Cyberpunk accent
-            )}
+    <div ref={containerRef} className="w-full h-full relative flex items-center justify-center">
+      <Canvas
+        frameloop={isInView ? "always" : "demand"}
+        camera={{ position: cameraPosition, fov }}
+        dpr={[1, 2]} // Cap pixel ratio for performance
+        gl={{
+          antialias: true,
+          alpha: true,
+          powerPreference: "high-performance"
+        }}
+        style={{ width: '100%', height: '100%' }}
+        eventSource={containerRef.current || undefined}
+        eventPrefix="client"
+      >
+        <Suspense fallback={null}>
+          {/* Common Lighting Setup */}
+          <ambientLight intensity={theme === 'dark' ? 0.2 : 0.6} />
+          <directionalLight
+            position={[10, 10, 5]}
+            intensity={theme === 'dark' ? 0.8 : 1.2}
+            color={theme === 'dark' ? '#aaa' : '#fff'}
+          />
+          {theme === 'dark' && (
+            <pointLight position={[-10, -10, -5]} intensity={0.5} color="#00ffcc" /> // Cyberpunk accent
+          )}
 
-            {/* Environment map for reflections */}
-            <Environment preset={theme === 'dark' ? "city" : "studio"} />
+          {/* Environment map for reflections */}
+          <Environment preset={theme === 'dark' ? "city" : "studio"} />
 
-            {/* The actual 3D content */}
-            <group scale={window.innerWidth < 768 ? mobileScale : 1}>
-              {children}
-            </group>
+          {/* The actual 3D content */}
+          <group scale={scale}>
+            {children}
+          </group>
 
-            <Preload all />
-          </Suspense>
-        </Canvas>
-      ) : (
-        // Fallback or empty div when out of view for performance
-        <div className="w-full h-full bg-transparent flex items-center justify-center">
-            {/* Optional 2D fallback or loading state */}
-        </div>
-      )}
+          <Preload all />
+        </Suspense>
+      </Canvas>
     </div>
   );
 };
