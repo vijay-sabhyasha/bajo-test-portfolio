@@ -9,7 +9,7 @@ export const SignatureBrandObject = () => {
   const meshRef = useRef<THREE.Group>(null);
   const { theme } = useTheme();
 
-  const { hasCamera, facePosRef } = useFaceTracking();
+  const { hasCamera, faceRotationRef } = useFaceTracking();
 
   // load model
   const { scene } = useGLTF('/models/eyes2.glb');
@@ -18,9 +18,10 @@ export const SignatureBrandObject = () => {
 
   useFrame((state) => {
     if (hasCamera) {
-      // Use face position if camera is available
-      targetRotation.current.x = (facePosRef.current.y * Math.PI) / 4;
-      targetRotation.current.y = (facePosRef.current.x * Math.PI) / 4;
+      // Use actual head rotation (pitch, yaw) with a multiplier for high intensity.
+      // Mediapipe outputs angles in radians. We apply a multiplier of 1.5 to make it intense.
+      targetRotation.current.x = faceRotationRef.current.pitch * 1.5;
+      targetRotation.current.y = faceRotationRef.current.yaw * 1.5;
     } else {
       // Fallback to mouse position
       targetRotation.current.x = (state.pointer.y * Math.PI) / 4;

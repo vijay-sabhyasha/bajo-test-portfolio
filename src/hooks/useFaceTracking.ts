@@ -1,25 +1,39 @@
 import { useState, useEffect, useRef } from 'react';
-import * as faceapi from '@vladmandic/face-api';
+import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
 
 export const useFaceTracking = () => {
   const [hasCamera, setHasCamera] = useState<boolean | null>(null);
-  const facePosRef = useRef({ x: 0, y: 0 });
+  // Store estimated pitch and yaw (rotation) instead of position
+  const faceRotationRef = useRef({ pitch: 0, yaw: 0 });
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const landmarkerRef = useRef<FaceLandmarker | null>(null);
 
   useEffect(() => {
     let stream: MediaStream | null = null;
     let isTracking = true;
+    let animationFrameId: number;
 
     const startCamera = async () => {
       try {
-        await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
+        const vision = await FilesetResolver.forVisionTasks(
+          "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm"
+        );
+        landmarkerRef.current = await FaceLandmarker.createFromOptions(vision, {
+          baseOptions: {
+            modelAssetPath: '/models/face_landmarker.task',
+            delegate: "GPU"
+          },
+          outputFaceBlendshapes: false,
+          outputFacialTransformationMatrixes: true,
+          runningMode: "VIDEO",
+          numFaces: 1
+        });
 
         const mediaStream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: 'user', width: 320, height: 240 },
           audio: false,
         });
 
-        // if unmounted during permission request, cleanup and return early
         if (!isTracking) {
           mediaStream.getTracks().forEach((track) => track.stop());
           return;
@@ -27,37 +41,37 @@ export const useFaceTracking = () => {
 
         stream = mediaStream;
 
+        let lastVideoTime = -1;
         const detectFace = async () => {
           if (!isTracking) return;
-          if (videoRef.current && videoRef.current.readyState === 4) {
-            const detections = await faceapi.detectSingleFace(
-              videoRef.current,
-              new faceapi.TinyFaceDetectorOptions({ inputSize: 160 })
-            );
+          if (videoRef.current && videoRef.current.readyState >= 2 && landmarkerRef.current) {
+            const startTimeMs = performance.now();
+            if (lastVideoTime !== videoRef.current.currentTime) {
+              lastVideoTime = videoRef.current.currentTime;
+              const results = landmarkerRef.current.detectForVideo(videoRef.current, startTimeMs);
 
-            if (detections) {
-              const { box } = detections;
-              // Normalize coordinates to -1 to 1 based on video dimensions
-              // Note: camera image is mirrored, handle carefully if needed
-              // x center, y center
-              const videoWidth = videoRef.current.videoWidth;
-              const videoHeight = videoRef.current.videoHeight;
+              if (results.facialTransformationMatrixes && results.facialTransformationMatrixes.length > 0) {
+                // The matrix is a 4x4 array representing the pose.
+                // We can extract pitch (x-axis rotation) and yaw (y-axis rotation).
+                const matrix = results.facialTransformationMatrixes[0].data;
 
-              const centerX = box.x + box.width / 2;
-              const centerY = box.y + box.height / 2;
+                // Extract yaw (around Y axis)
+                let yaw = Math.atan2(-matrix[8], Math.sqrt(matrix[9] * matrix[9] + matrix[10] * matrix[10]));
 
-              // Mirror X so moving left physically moves model left
-              const normalizedX = (-(centerX / videoWidth) * 2) + 1;
-              // Standard Y
-              const normalizedY = -((centerY / videoHeight) * 2) + 1;
+                // Extract pitch (around X axis)
+                let pitch = Math.atan2(matrix[9], matrix[10]);
 
-              facePosRef.current = {
-                x: normalizedX,
-                y: normalizedY,
-              };
+                // The output depends slightly on the camera mirror state and orientation.
+                // We'll flip yaw to match mirroring if needed
+
+                faceRotationRef.current = {
+                  pitch: pitch,
+                  yaw: -yaw
+                };
+              }
             }
           }
-          requestAnimationFrame(detectFace);
+          animationFrameId = requestAnimationFrame(detectFace);
         };
 
         videoRef.current?.addEventListener('play', () => {
@@ -82,20 +96,26 @@ export const useFaceTracking = () => {
     videoEl.autoplay = true;
     videoEl.muted = true;
     videoEl.playsInline = true;
+    // Flip video horizontally since front camera is usually mirrored
+    videoEl.style.transform = 'scaleX(-1)';
     videoRef.current = videoEl;
 
     startCamera();
 
     return () => {
       isTracking = false;
+      cancelAnimationFrame(animationFrameId);
       if (stream) {
         stream.getTracks().forEach((track) => track.stop());
       }
       if (videoRef.current) {
         videoRef.current.srcObject = null;
       }
+      if (landmarkerRef.current) {
+        landmarkerRef.current.close();
+      }
     };
   }, []);
 
-  return { hasCamera, facePosRef };
+  return { hasCamera, faceRotationRef };
 };
