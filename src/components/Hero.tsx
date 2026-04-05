@@ -4,8 +4,9 @@ import {
 BsFillGlobeCentralSouthAsiaFill
 } from "react-icons/bs";
 import { HiDownload } from "react-icons/hi";
-import { AvatarVideo } from './AvatarVideo';
 import { Magnetic } from './Magnetic';
+import { SceneWrapper } from './SceneWrapper';
+import { SignatureBrandObject } from './SignatureBrandObject';
 
 const ScrambleText = () => {
   const phrases = ['Full Stack Developer', 'Backend Developer', 'Frontend Developer'];
@@ -50,8 +51,12 @@ const ScrambleText = () => {
 export const Hero: React.FC = () => {
   return (
     <section className="relative h-screen flex flex-col justify-center px-4 md:px-8 overflow-hidden bg-[#EBEAE9] dark:bg-[#141517]">
-      {/* 3D Avatar Video with transparent background */}
-      {/* <AvatarVideo /> */}
+      {/* 3D Background */}
+      <div className="absolute inset-0 z-0">
+        <SceneWrapper cameraPosition={[0, 0, 8]} fov={45}>
+          <SignatureBrandObject />
+        </SceneWrapper>
+      </div>
 
       <div>
         <div className="flex justify-between items-end mb-8 min-[2000px]:mb-[4vh] relative z-20">
@@ -62,7 +67,7 @@ export const Hero: React.FC = () => {
         </div>
       </div>
 
-      <div className="relative flex overflow-hidden whitespace-nowrap mt-20 min-[2000px]:mt-[10vh] h-40 min-[2000px]:h-[15vh] w-full z-20 pointer-events-none">
+      {/* <div className="relative flex overflow-hidden whitespace-nowrap mt-20 min-[2000px]:mt-[10vh] h-40 min-[2000px]:h-[15vh] w-full z-20 pointer-events-none">
         <motion.div 
           className="flex"
           animate={{ x: ["0%", "-50%"] }}
@@ -85,7 +90,7 @@ export const Hero: React.FC = () => {
             <span className="inline-block italic text-transparent [-webkit-text-stroke:2px_black] dark:[-webkit-text-stroke:2px_white]">vijayakabajo</span><span className="mx-4 font-light opacity-50">—</span>
           </h1>
         </motion.div>
-      </div>
+      </div> */}
       </div>
 
       <div className="absolute bottom-8 md:bottom-12 min-[2000px]:bottom-[5vh] left-4 md:left-8 min-[2000px]:left-[4vw] flex items-center gap-2 md:gap-3 min-[2000px]:gap-[1vw] bg-black/5 dark:bg-white/10 backdrop-blur-md px-4 py-2 md:px-6 md:py-3 min-[2000px]:px-[2vw] min-[2000px]:py-[1vh] rounded-full w-fit transition-colors duration-500 z-20">

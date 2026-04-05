@@ -54,8 +54,7 @@ export const Navbar: React.FC = () => {
       {/* Logo + Gear */}
       <div className="flex items-center gap-1 min-[2000px]:gap-[0.5vw] select-none">
         <span className="text-2xl lg:text-[clamp(24px,2.4vw,36px)] min-[2000px]:text-[2vw] font-bold tracking-tighter text-gray-600 dark:text-white leading-none">
-          VJ
-        </span>
+          Vs        </span>
 
         {/* Rotating Gear */}
         <FaCog
