@@ -3,7 +3,7 @@ import * as faceapi from '@vladmandic/face-api';
 
 export const useFaceTracking = () => {
   const [hasCamera, setHasCamera] = useState<boolean | null>(null);
-  const [facePos, setFacePos] = useState({ x: 0, y: 0 });
+  const facePosRef = useRef({ x: 0, y: 0 });
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
@@ -14,16 +14,18 @@ export const useFaceTracking = () => {
       try {
         await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
 
-        stream = await navigator.mediaDevices.getUserMedia({
+        const mediaStream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: 'user', width: 320, height: 240 },
           audio: false,
         });
 
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          await videoRef.current.play();
+        // if unmounted during permission request, cleanup and return early
+        if (!isTracking) {
+          mediaStream.getTracks().forEach((track) => track.stop());
+          return;
         }
-        setHasCamera(true);
+
+        stream = mediaStream;
 
         const detectFace = async () => {
           if (!isTracking) return;
@@ -49,10 +51,10 @@ export const useFaceTracking = () => {
               // Standard Y
               const normalizedY = -((centerY / videoHeight) * 2) + 1;
 
-              setFacePos({
+              facePosRef.current = {
                 x: normalizedX,
                 y: normalizedY,
-              });
+              };
             }
           }
           requestAnimationFrame(detectFace);
@@ -62,9 +64,17 @@ export const useFaceTracking = () => {
           detectFace();
         });
 
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          await videoRef.current.play();
+        }
+        setHasCamera(true);
+
       } catch (err) {
         console.warn('Camera access denied or error loading models:', err);
-        setHasCamera(false);
+        if (isTracking) {
+          setHasCamera(false);
+        }
       }
     };
 
@@ -87,5 +97,5 @@ export const useFaceTracking = () => {
     };
   }, []);
 
-  return { hasCamera, facePos };
+  return { hasCamera, facePosRef };
 };

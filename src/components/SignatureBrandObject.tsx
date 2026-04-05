@@ -9,7 +9,7 @@ export const SignatureBrandObject = () => {
   const meshRef = useRef<THREE.Group>(null);
   const { theme } = useTheme();
 
-  const { hasCamera, facePos } = useFaceTracking();
+  const { hasCamera, facePosRef } = useFaceTracking();
 
   // load model
   const { scene } = useGLTF('/models/eyes2.glb');
@@ -19,8 +19,8 @@ export const SignatureBrandObject = () => {
   useFrame((state) => {
     if (hasCamera) {
       // Use face position if camera is available
-      targetRotation.current.x = (facePos.y * Math.PI) / 4;
-      targetRotation.current.y = (facePos.x * Math.PI) / 4;
+      targetRotation.current.x = (facePosRef.current.y * Math.PI) / 4;
+      targetRotation.current.y = (facePosRef.current.x * Math.PI) / 4;
     } else {
       // Fallback to mouse position
       targetRotation.current.x = (state.pointer.y * Math.PI) / 4;
