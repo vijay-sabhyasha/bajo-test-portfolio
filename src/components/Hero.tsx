@@ -59,7 +59,7 @@ export const Hero: React.FC = () => {
       </div>
 
       <div>
-        <div className="flex justify-between items-end mb-8 min-[2000px]:mb-[4vh] relative z-20">
+        <div className="absolute top-24 left-0 md:relative md:top-auto flex justify-between items-end mb-8 min-[2000px]:mb-[4vh] z-20 w-full md:w-auto px-4 md:px-0">
         <div className="flex flex-col gap-3 min-[2000px]:gap-[1.5vh]">
           <h2 className="text-xl md:text-2xl min-[2000px]:text-[2vw] font-light leading-tight max-w-sm min-[2000px]:max-w-[20vw] text-gray-400">
             <ScrambleText />
