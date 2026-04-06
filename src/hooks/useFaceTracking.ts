@@ -3,8 +3,8 @@ import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
 
 export const useFaceTracking = () => {
   const [hasCamera, setHasCamera] = useState<boolean | null>(null);
-  // Store estimated pitch and yaw (rotation) instead of position
-  const faceRotationRef = useRef({ pitch: 0, yaw: 0 });
+  // Store estimated pitch, yaw, roll, and distance
+  const faceRotationRef = useRef({ pitch: 0, yaw: 0, roll: 0, z: 0 });
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const landmarkerRef = useRef<FaceLandmarker | null>(null);
 
@@ -61,12 +61,21 @@ export const useFaceTracking = () => {
                 // Extract pitch (around X axis)
                 let pitch = Math.atan2(matrix[9], matrix[10]);
 
+                // Extract roll (around Z axis)
+                let roll = Math.atan2(matrix[4], matrix[0]);
+
+                // Extract z translation
+                // Column-major array, translation is usually at indices 12, 13, 14
+                let z = matrix[14];
+
                 // The output depends slightly on the camera mirror state and orientation.
-                // We'll flip yaw to match mirroring if needed
+                // We'll flip yaw and roll to match mirroring if needed
                 
                 faceRotationRef.current = {
                   pitch: pitch,
-                  yaw: -yaw
+                  yaw: -yaw,
+                  roll: -roll,
+                  z: z
                 };
               }
             }
