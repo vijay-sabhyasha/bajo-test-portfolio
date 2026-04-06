@@ -9,7 +9,7 @@ import { SceneWrapper } from './SceneWrapper';
 import { SignatureBrandObject } from './SignatureBrandObject';
 
 const ScrambleText = () => {
-  const phrases = ['Full Stack Development', 'Backend Development', 'Frontend Development', 'Web Scraping', 'Automation', 'Database Design', 'Cloud Computing', 'API Development', 'Performance Optimization', 'Security Best Practices', 'System Architecture', 'DevOps', 'Testing & Debugging', 'Version Control', 'Agile Methodologies'];
+  const phrases = ['Full Stack Development', 'Backend Development', 'Frontend Development', 'Web Scraping', 'Automation', 'Database Design', 'API Development', 'Performance Optimization', 'Security Best Practices', 'System Architecture', 'DevOps', 'Testing & Debugging', 'Version Control'];
   const chars = '!<>-_\\/[]{}—=+*^?#';
   const [text, setText] = useState(phrases[0]);
 
