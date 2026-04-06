@@ -14,7 +14,9 @@ export const SignatureBrandObject = () => {
   // load model
   const { scene } = useGLTF('/models/eyes2.glb');
 
-  const targetRotation = useRef({ x: 0, y: 0 });
+  const targetRotation = useRef({ x: 0, y: 0, z: 0 });
+  const targetZ = useRef(0);
+  const baseScale = 5;
 
   useEffect(() => {
     const box = new THREE.Box3().setFromObject(scene);
@@ -30,18 +32,44 @@ export const SignatureBrandObject = () => {
   useFrame((state) => {
     if (hasCamera) {
       // Use actual head rotation (pitch, yaw) with a multiplier for high intensity.
-      // Mediapipe outputs angles in radians. We apply a multiplier of 1.5 to make it intense.
-      targetRotation.current.x = -faceRotationRef.current.pitch * 2;
-      targetRotation.current.y = -faceRotationRef.current.yaw * 2;
+      // Mediapipe outputs angles in radians. We apply a multiplier of 2 to make it intense.
+      targetRotation.current.x = -faceRotationRef.current.pitch * 1.5;
+      targetRotation.current.y = -faceRotationRef.current.yaw * 1.5;
+      
+      // Highly intense roll
+      targetRotation.current.z = -faceRotationRef.current.roll * 1.35;
+
+      // Extract Z translation for distance.
+      // Mediapipe Z can be slightly noisy. Assuming neutral Z ~ -50.
+      // Let's normalize it to create a strong effect.
+      // We map Z directly to position.z.
+      // Note: Values depend on distance. Closer to camera = higher Z or lower negative.
+      // We will map Z to an offset
+      const zOffset = (faceRotationRef.current.z + 40) * 0.18; // Highly intense distance
+      targetZ.current = zOffset;
+
     } else {
       // Fallback to mouse position
       targetRotation.current.x = (-state.pointer.y * Math.PI) / 4;
       targetRotation.current.y = (state.pointer.x * Math.PI) / 4;
+
+      // Combination of both X and Y for tilt
+      targetRotation.current.z = (state.pointer.x * state.pointer.y * Math.PI) / 5;
+
+      // Distance based on distance from center (edges = further away, center = closer)
+      // pointer ranges from -1 to 1
+      const distFromCenter = Math.sqrt(state.pointer.x * state.pointer.x + state.pointer.y * state.pointer.y);
+      // max distance is sqrt(2) ~ 1.414. We want edges to be further away (lower Z).
+      // so when distFromCenter is large, targetZ is negative. When distFromCenter is small, targetZ is positive.
+      targetZ.current = (1 - distFromCenter) * 15 - 5; // Intense translation
     }
 
     if (meshRef.current) {
       meshRef.current.rotation.x += (targetRotation.current.x - meshRef.current.rotation.x) * 0.35;
       meshRef.current.rotation.y += (targetRotation.current.y - meshRef.current.rotation.y) * 0.25;
+      meshRef.current.rotation.z += (targetRotation.current.z - meshRef.current.rotation.z) * 0.25;
+
+      meshRef.current.position.z += (targetZ.current - meshRef.current.position.z) * 0.1;
     }
   });
 
@@ -50,7 +78,7 @@ export const SignatureBrandObject = () => {
       <primitive
         ref={meshRef}
         object={scene}
-        scale={5}   // adjust if too big/small
+        scale={baseScale}   // adjust if too big/small
       />
     </Float>
   );
