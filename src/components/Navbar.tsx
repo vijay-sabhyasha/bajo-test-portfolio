@@ -16,7 +16,8 @@ export const Navbar: React.FC = () => {
   useEffect(() => {
     const updateRotation = () => {
       if (gearRef.current) {
-        const rotation = lastScrollY.current * 0.3; // Rotate 2 degrees per 1000px scrolled
+        // Slower and cleaner
+        const rotation = lastScrollY.current * 0.08;
         gearRef.current.style.transform = `rotate(${rotation}deg)`;
       }
       ticking.current = false;
@@ -32,7 +33,9 @@ export const Navbar: React.FC = () => {
       }
     };
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -51,32 +54,25 @@ export const Navbar: React.FC = () => {
           : "bg-transparent"
       }`}
     >
-      {/* Logo + Gear */}
       <div className="flex items-center gap-1 min-[2000px]:gap-[0.5vw] select-none">
         <span className="text-2xl lg:text-[clamp(24px,2.4vw,36px)] min-[2000px]:text-[2vw] font-bold tracking-tighter text-gray-600 dark:text-white leading-none">
-          Vs        </span>
+          Vs
+        </span>
 
-        {/* Rotating Gear */}
-        <div ref={gearRef}>
-          <FaCog
-            className="w-4 h-4 lg:w-5 lg:h-5 ml-2 text-gray-600 dark:text-white"
-          />
+        <div
+          ref={gearRef}
+          className="ml-2 flex items-center justify-center origin-center will-change-transform"
+        >
+          <FaCog className="w-4 h-4 lg:w-5 lg:h-5 text-gray-600 dark:text-white" />
         </div>
-
-        {/* <div className="w-2 h-2 mb-1 lg:w-2.5 lg:h-2.5 lg:mb-1.5 min-[2000px]:w-[0.6vw] min-[2000px]:h-[0.6vw] min-[2000px]:mb-[0.5vh] bg-[#F05641] rounded-full" /> */}
       </div>
 
-      {/* Nav Links */}
       <div className="hidden md:flex gap-6 lg:gap-8 min-[2000px]:gap-[3vw] items-center">
         {["Home", "About", "Experience", "Work", "Contact"].map((item) => (
           <Magnetic key={item}>
             <a
               href={item === "Home" ? "/#" : `/#${item.toLowerCase()}`}
-              className="relative nav-link text-sm lg:text-[clamp(14px,1vw,18px)] min-[2000px]:text-[1vw] font-medium text-gray-600 hover:text-black dark:text-gray-300 dark:hover:text-white transition-colors
-              after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-px after:w-0
-              after:bg-black dark:after:bg-white
-              after:transition-all after:duration-300
-              hover:after:w-full"
+              className="relative nav-link text-sm lg:text-[clamp(14px,1vw,18px)] min-[2000px]:text-[1vw] font-medium text-gray-600 hover:text-black dark:text-gray-300 dark:hover:text-white transition-colors after:content-[''] after:absolute after:left-0 after:-bottom-1 after:h-px after:w-0 after:bg-black dark:after:bg-white after:transition-all after:duration-300 hover:after:w-full"
             >
               {item}
             </a>
@@ -84,7 +80,6 @@ export const Navbar: React.FC = () => {
         ))}
       </div>
 
-      {/* Theme Toggle */}
       <div className="flex items-center gap-2 lg:gap-4 min-[2000px]:gap-[1.5vw]">
         <div className="flex items-center gap-1.5 lg:gap-2 min-[2000px]:gap-[1vw]">
           <LuSunMedium
