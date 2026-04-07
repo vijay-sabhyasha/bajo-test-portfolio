@@ -63,9 +63,9 @@ export const Navbar: React.FC = () => {
           Vs        </span>
 
         {/* Rotating Gear */}
-        <div ref={gearRef}>
+        <div ref={gearRef} className="ml-2 flex items-center justify-center">
           <FaCog
-            className="w-4 h-4 lg:w-5 lg:h-5 ml-2 text-gray-600 dark:text-white"
+            className="w-4 h-4 lg:w-5 lg:h-5 text-gray-600 dark:text-white"
           />
         </div>
 
