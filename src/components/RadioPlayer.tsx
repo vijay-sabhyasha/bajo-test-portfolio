@@ -12,9 +12,6 @@ export const RadioPlayer: React.FC = () => {
   const [isReady, setIsReady] = useState(false);
   const playerRef = useRef<any>(null);
 
-  // If playing, we render a portal-like fixed element, else normal element.
-  // We'll manage the bounce animation in CSS.
-
   const handlePlayPause = (e: React.MouseEvent) => {
     e.stopPropagation();
     setPlaying(!playing);
@@ -27,7 +24,6 @@ export const RadioPlayer: React.FC = () => {
       if (internalPlayer && typeof internalPlayer.nextVideo === "function") {
         internalPlayer.nextVideo();
       } else {
-        // Fallback for YouTube iframe API if nextVideo isn't directly exposed
         try {
           internalPlayer.target.nextVideo();
         } catch (err) {
@@ -45,48 +41,6 @@ export const RadioPlayer: React.FC = () => {
   const toggleMute = (e: React.MouseEvent) => {
     e.stopPropagation();
     setVolume(volume === 0 ? 0.5 : 0);
-  };
-
-  const navRef = useRef<HTMLDivElement>(null);
-  const [navRect, setNavRect] = useState<DOMRect | null>(null);
-
-  // Update original nav position to animate from/to
-  useEffect(() => {
-    if (navRef.current) {
-      setNavRect(navRef.current.getBoundingClientRect());
-    }
-
-    const handleResize = () => {
-      if (navRef.current && !playing) {
-        setNavRect(navRef.current.getBoundingClientRect());
-      }
-    };
-    window.addEventListener("resize", handleResize);
-    window.addEventListener("scroll", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      window.removeEventListener("scroll", handleResize);
-    };
-  }, [playing]);
-
-  // Floating styling properties
-  const floatingStyle = {
-    top: "50%",
-    right: "24px",
-    x: 0,
-    y: "-50%",
-  };
-
-  const navPositionStyle = navRect ? {
-    top: navRect.top,
-    left: navRect.left,
-    x: 0,
-    y: 0,
-  } : {
-    top: 0,
-    left: 0,
-    x: 0,
-    y: 0,
   };
 
   const popoverContent = (
@@ -131,6 +85,22 @@ export const RadioPlayer: React.FC = () => {
     </div>
   );
 
+  const mainIconContent = (
+    <button
+      onClick={handlePlayPause}
+      className={`relative z-10 flex items-center justify-center w-8 h-8 lg:w-10 lg:h-10 min-[2000px]:w-[2.5vw] min-[2000px]:h-[2.5vw] rounded-full transition-all duration-300 focus:outline-none ${
+        playing ? "text-[#F05641] bg-white dark:bg-gray-800 shadow-lg border border-black/5 dark:border-white/10" : "text-gray-500 hover:text-black dark:hover:text-white"
+      }`}
+      title="Radio"
+    >
+      {playing ? (
+        <LuSpeaker className="w-5 h-5 lg:w-6 lg:h-6 min-[2000px]:w-[1.5vw] min-[2000px]:h-[1.5vw]" />
+      ) : (
+        <FaRadio className="w-5 h-5 lg:w-6 lg:h-6 min-[2000px]:w-[1.5vw] min-[2000px]:h-[1.5vw]" />
+      )}
+    </button>
+  );
+
   return (
     <>
       <style>
@@ -146,46 +116,40 @@ export const RadioPlayer: React.FC = () => {
         `}
       </style>
 
-      {/* Placeholder in Navbar when playing to collapse smoothly if we wanted to,
-          but making it size 0 will make the navbar collapse */}
-      <div
-        ref={navRef}
-        className={`relative flex items-center justify-center transition-all duration-300 ${playing ? "w-0 h-0 overflow-hidden opacity-0" : "w-8 h-8 lg:w-10 lg:h-10 min-[2000px]:w-[2.5vw] min-[2000px]:h-[2.5vw]"}`}
-      />
+      {/* We use framer-motion layoutId to automatically morph between the two positions */}
 
-      {/* Render the actual UI via portal so it escapes the backdrop-filter containing block trap */}
-      {createPortal(
+      {!playing && (
+        <div className="relative flex items-center justify-center w-8 h-8 lg:w-10 lg:h-10 min-[2000px]:w-[2.5vw] min-[2000px]:h-[2.5vw]">
+          <motion.div
+            layoutId="radio-player"
+            className="relative"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+          >
+            {mainIconContent}
+            {popoverContent}
+          </motion.div>
+        </div>
+      )}
+
+      {/* Render the floating state via portal so it escapes the backdrop-filter */}
+      {playing && createPortal(
         <motion.div
-          initial={navPositionStyle}
-          animate={playing ? floatingStyle : navPositionStyle}
-          transition={{ type: "spring", stiffness: 300, damping: 25 }}
-          className={`fixed z-[100] ${playing ? "floating-bounce" : ""}`}
-          style={{ position: 'fixed' }}
+          layoutId="radio-player"
+          className="fixed right-4 lg:right-6 min-[2000px]:right-[4vw] z-[100] floating-bounce"
+          style={{ top: "50%" }}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
+          transition={{ type: "spring", stiffness: 300, damping: 25 }}
         >
-          {/* The main icon */}
-          <button
-            onClick={handlePlayPause}
-            className={`relative z-10 flex items-center justify-center w-8 h-8 lg:w-10 lg:h-10 min-[2000px]:w-[2.5vw] min-[2000px]:h-[2.5vw] rounded-full transition-all duration-300 focus:outline-none ${
-              playing ? "text-[#F05641] bg-white dark:bg-gray-800 shadow-lg border border-black/5 dark:border-white/10" : "text-gray-500 hover:text-black dark:hover:text-white"
-            }`}
-            title="Radio"
-          >
-            {playing ? (
-              <LuSpeaker className="w-5 h-5 lg:w-6 lg:h-6 min-[2000px]:w-[1.5vw] min-[2000px]:h-[1.5vw]" />
-            ) : (
-              <FaRadio className="w-5 h-5 lg:w-6 lg:h-6 min-[2000px]:w-[1.5vw] min-[2000px]:h-[1.5vw]" />
-            )}
-          </button>
-
-          {/* Hover popover */}
+          {mainIconContent}
           {popoverContent}
         </motion.div>,
         document.body
       )}
 
-      {/* Hidden YouTube Player (kept out of Portal to never unmount/reload) */}
+      {/* Hidden YouTube Player (kept out of layout morphing to never unmount/reload) */}
       <div className="hidden">
         <ReactPlayer
           ref={playerRef}
@@ -197,7 +161,10 @@ export const RadioPlayer: React.FC = () => {
           onReady={() => setIsReady(true)}
           config={{
             youtube: {
-              playlist: 'PLtd07o84uPAEz3PeRm87JkSSHqHdJ1Rhu'
+              playerVars: {
+                listType: 'playlist',
+                list: 'PLtd07o84uPAEz3PeRm87JkSSHqHdJ1Rhu'
+              }
             }
           }}
         />
