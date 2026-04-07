@@ -4,6 +4,7 @@ import { LuSunMedium } from "react-icons/lu";
 import { IoIosMoon } from "react-icons/io";
 import { FaCog } from "react-icons/fa";
 import { useTheme } from "../ThemeContext";
+import { RadioPlayer } from "./RadioPlayer";
 
 export const Navbar: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -110,6 +111,7 @@ export const Navbar: React.FC = () => {
             }`}
           />
         </div>
+        <RadioPlayer />
       </div>
     </nav>
   );
