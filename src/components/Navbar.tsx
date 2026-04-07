@@ -11,30 +11,35 @@ export const Navbar: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
 
   const gearRef = useRef<HTMLDivElement | null>(null);
-  const lastScrollY = useRef(0);
-  const ticking = useRef(false);
+
+  const currentRotation = useRef(0);
+  const targetRotation = useRef(0);
 
   useEffect(() => {
-    const updateRotation = () => {
+    let animationFrameId: number;
+
+    const smoothRotate = () => {
+      // Lerp for smooth rotation
+      currentRotation.current += (targetRotation.current - currentRotation.current) * 0.1;
+      
       if (gearRef.current) {
-        const rotation = lastScrollY.current * 0.3; // Rotate 2 degrees per 1000px scrolled
-        gearRef.current.style.transform = `rotate(${rotation}deg)`;
+        gearRef.current.style.transform = `rotate(${currentRotation.current}deg)`;
       }
-      ticking.current = false;
+      animationFrameId = window.requestAnimationFrame(smoothRotate);
     };
 
     const handleScroll = () => {
-      lastScrollY.current = window.scrollY;
+      targetRotation.current = window.scrollY * 0.3; // Target rotation
       setScrolled(window.scrollY > 50);
-
-      if (!ticking.current) {
-        window.requestAnimationFrame(updateRotation);
-        ticking.current = true;
-      }
     };
 
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    animationFrameId = window.requestAnimationFrame(smoothRotate);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.cancelAnimationFrame(animationFrameId);
+    };
   }, []);
 
   useEffect(() => {
@@ -58,9 +63,9 @@ export const Navbar: React.FC = () => {
           Vs        </span>
 
         {/* Rotating Gear */}
-        <div ref={gearRef}>
+        <div ref={gearRef} className="ml-2 flex items-center justify-center">
           <FaCog
-            className="w-4 h-4 lg:w-5 lg:h-5 ml-2 text-gray-600 dark:text-white"
+            className="w-4 h-4 lg:w-5 lg:h-5 text-gray-600 dark:text-white"
           />
         </div>
 

@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import ReactPlayer from "react-player";
 import { FaRadio } from "react-icons/fa6";
 import { LuSpeaker, LuPlay, LuPause, LuSkipForward, LuVolume2, LuVolumeX } from "react-icons/lu";
+import { motion, AnimatePresence } from "motion/react";
 
 export const RadioPlayer: React.FC = () => {
   const [playing, setPlaying] = useState(false);
@@ -9,11 +11,6 @@ export const RadioPlayer: React.FC = () => {
   const [isHovered, setIsHovered] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const playerRef = useRef<any>(null);
-
-  // Floating animation styles
-  const floatingStyle = playing
-    ? { animation: "float 2s ease-in-out infinite" }
-    : {};
 
   const handlePlayPause = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -23,10 +20,15 @@ export const RadioPlayer: React.FC = () => {
   const handleNextTrack = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (playerRef.current) {
-      // react-player wrapper for youtube next video in playlist
       const internalPlayer = playerRef.current.getInternalPlayer();
       if (internalPlayer && typeof internalPlayer.nextVideo === "function") {
         internalPlayer.nextVideo();
+      } else {
+        try {
+          internalPlayer.target.nextVideo();
+        } catch (err) {
+          console.error("Could not skip track", err);
+        }
       }
     }
   };
@@ -41,57 +43,15 @@ export const RadioPlayer: React.FC = () => {
     setVolume(volume === 0 ? 0.5 : 0);
   };
 
-  // Pre-load the player but don't play until requested
-  return (
+  const popoverContent = (
     <div
-      className="relative flex items-center justify-center h-full"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      className={`absolute right-0 top-full pt-2 lg:pt-3 min-[2000px]:pt-[1vh] transition-all duration-300 origin-top-right z-[110] ${
+        isHovered ? "opacity-100 scale-100 pointer-events-auto" : "opacity-0 scale-95 pointer-events-none"
+      }`}
+      onClick={(e) => e.stopPropagation()}
     >
-      <style>
-        {`
-          @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-4px); }
-            100% { transform: translateY(0px); }
-          }
-        `}
-      </style>
-
-      {/* The main icon */}
-      <button
-        onClick={handlePlayPause}
-        className={`relative z-10 flex items-center justify-center w-8 h-8 lg:w-10 lg:h-10 min-[2000px]:w-[2.5vw] min-[2000px]:h-[2.5vw] rounded-full transition-all duration-300 focus:outline-none ${
-          playing ? "text-[#F05641]" : "text-gray-500 hover:text-black dark:hover:text-white"
-        }`}
-        title="Radio"
-      >
-        {playing ? (
-          <LuSpeaker className="w-5 h-5 lg:w-6 lg:h-6 min-[2000px]:w-[1.5vw] min-[2000px]:h-[1.5vw]" style={floatingStyle} />
-        ) : (
-          <FaRadio className="w-5 h-5 lg:w-6 lg:h-6 min-[2000px]:w-[1.5vw] min-[2000px]:h-[1.5vw]" />
-        )}
-      </button>
-
-      {/* Hover Controls Popover */}
-      <div
-        className={`absolute right-0 top-full mt-2 lg:mt-3 min-[2000px]:mt-[1vh] p-2 lg:p-3 min-[2000px]:p-[0.8vw] bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-black/5 dark:border-white/10 flex items-center gap-3 lg:gap-4 min-[2000px]:gap-[1vw] transition-all duration-300 origin-top-right ${
-          isHovered ? "opacity-100 scale-100 pointer-events-auto" : "opacity-0 scale-95 pointer-events-none"
-        }`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button
-          onClick={handlePlayPause}
-          className="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors"
-          title={playing ? "Pause" : "Play"}
-        >
-          {playing ? (
-            <LuPause className="w-4 h-4 lg:w-5 lg:h-5 min-[2000px]:w-[1.2vw] min-[2000px]:h-[1.2vw]" />
-          ) : (
-            <LuPlay className="w-4 h-4 lg:w-5 lg:h-5 min-[2000px]:w-[1.2vw] min-[2000px]:h-[1.2vw]" />
-          )}
-        </button>
-
+      <div className="p-2 lg:p-3 min-[2000px]:p-[0.8vw] bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-black/5 dark:border-white/10 flex items-center gap-3 lg:gap-4 min-[2000px]:gap-[1vw]">
+        {/* Removed play/pause button here since main icon does it */}
         <button
           onClick={handleNextTrack}
           className="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors"
@@ -122,8 +82,74 @@ export const RadioPlayer: React.FC = () => {
           />
         </div>
       </div>
+    </div>
+  );
 
-      {/* Hidden YouTube Player */}
+  const mainIconContent = (
+    <button
+      onClick={handlePlayPause}
+      className={`relative z-10 flex items-center justify-center w-8 h-8 lg:w-10 lg:h-10 min-[2000px]:w-[2.5vw] min-[2000px]:h-[2.5vw] rounded-full transition-all duration-300 focus:outline-none ${
+        playing ? "text-[#F05641] bg-white dark:bg-gray-800 shadow-lg border border-black/5 dark:border-white/10" : "text-gray-500 hover:text-black dark:hover:text-white"
+      }`}
+      title="Radio"
+    >
+      {playing ? (
+        <LuSpeaker className="w-5 h-5 lg:w-6 lg:h-6 min-[2000px]:w-[1.5vw] min-[2000px]:h-[1.5vw]" />
+      ) : (
+        <FaRadio className="w-5 h-5 lg:w-6 lg:h-6 min-[2000px]:w-[1.5vw] min-[2000px]:h-[1.5vw]" />
+      )}
+    </button>
+  );
+
+  return (
+    <>
+      <style>
+        {`
+          @keyframes floatBounce {
+            0% { transform: translateY(-50%); }
+            50% { transform: translateY(calc(-50% - 8px)); }
+            100% { transform: translateY(-50%); }
+          }
+          .floating-bounce {
+            animation: floatBounce 2s ease-in-out infinite;
+          }
+        `}
+      </style>
+      
+      {/* We use framer-motion layoutId to automatically morph between the two positions */}
+      
+      {!playing && (
+        <div className="relative flex items-center justify-center w-8 h-8 lg:w-10 lg:h-10 min-[2000px]:w-[2.5vw] min-[2000px]:h-[2.5vw]">
+          <motion.div
+            layoutId="radio-player"
+            className="relative"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+          >
+            {mainIconContent}
+            {popoverContent}
+          </motion.div>
+        </div>
+      )}
+
+      {/* Render the floating state via portal so it escapes the backdrop-filter */}
+      {playing && createPortal(
+        <motion.div
+          layoutId="radio-player"
+          className="fixed right-4 lg:right-6 min-[2000px]:right-[4vw] z-[100] floating-bounce"
+          style={{ top: "50%" }}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          transition={{ type: "spring", stiffness: 300, damping: 25 }}
+        >
+          {mainIconContent}
+          {popoverContent}
+        </motion.div>,
+        document.body
+      )}
+
+      {/* Hidden YouTube Player (kept out of layout morphing to never unmount/reload) */}
       <div className="hidden">
         <ReactPlayer
           ref={playerRef}
@@ -135,12 +161,14 @@ export const RadioPlayer: React.FC = () => {
           onReady={() => setIsReady(true)}
           config={{
             youtube: {
-              // Ensure looping if possible, though playlists naturally play through
-              playlist: 'PLtd07o84uPAEz3PeRm87JkSSHqHdJ1Rhu'
+              playerVars: {
+                listType: 'playlist',
+                list: 'PLtd07o84uPAEz3PeRm87JkSSHqHdJ1Rhu'
+              }
             }
           }}
         />
       </div>
-    </div>
+    </>
   );
 };
