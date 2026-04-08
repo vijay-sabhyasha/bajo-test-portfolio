@@ -9,7 +9,7 @@ export const SignatureBrandObject = () => {
   const meshRef = useRef<THREE.Group>(null);
   const { theme } = useTheme();
 
-  const { hasCamera, faceRotationRef } = useFaceTracking();
+  const { hasCamera, isFaceDetected, faceRotationRef } = useFaceTracking();
 
   const { scene } = useGLTF('/models/eyes2.glb');
 
@@ -25,15 +25,19 @@ export const SignatureBrandObject = () => {
 
   useFrame((state) => {
     if (hasCamera) {
+      if (isFaceDetected) {
+        targetRotation.current.x = -faceRotationRef.current.pitch * 1.5;
+        targetRotation.current.y = -faceRotationRef.current.yaw * 1.5;
+        targetRotation.current.z = -faceRotationRef.current.roll * 1.35;
 
-      targetRotation.current.x = -faceRotationRef.current.pitch * 1.5;
-      targetRotation.current.y = -faceRotationRef.current.yaw * 1.5;
-      targetRotation.current.z = -faceRotationRef.current.roll * 1.35;
-
-
-      const zOffset = (faceRotationRef.current.z + 40) * 0.2;   //1.8 stable
-      targetZ.current = zOffset;
-
+        const zOffset = (faceRotationRef.current.z + 40) * 0.2;   //1.8 stable
+        targetZ.current = zOffset;
+      } else {
+        targetRotation.current.x = 0;
+        targetRotation.current.y = 0;
+        targetRotation.current.z = 0;
+        targetZ.current = -1;
+      }
     } else {
       targetRotation.current.x = (-state.pointer.y * Math.PI) / 4;
       targetRotation.current.y = (state.pointer.x * Math.PI) / 4;

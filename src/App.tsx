@@ -11,6 +11,8 @@ import { ThemeProvider } from './ThemeContext';
 import Bento from './components/About/Bento';
 import { PrivacyPolicy } from './components/PrivacyPolicy';
 import { TermsAndConditions } from './components/TermsAndConditions';
+import { CameraPermissionModal } from './components/CameraPermissionModal';
+import { useFaceTracking } from './hooks/useFaceTracking';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -38,10 +40,18 @@ export default function App() {
     };
   }, []);
 
+  // Use the face tracking hook at the top level to manage permission state globally
+  const { permissionRequested, requestPermission, denyPermission } = useFaceTracking();
+
   return (
     <ThemeProvider>
       <Router>
         <ScrollToTop />
+        <CameraPermissionModal
+          isOpen={!permissionRequested}
+          onAllow={requestPermission}
+          onDeny={denyPermission}
+        />
         <main className="relative min-h-screen font-sans">
           <CustomCursor />
           <Navbar />

@@ -1,19 +1,36 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
+import { useFaceTrackingStore } from './useFaceTrackingStore';
+
+// Singleton for tracking data so we don't have to put it in zustand state (which triggers too many renders)
+export const globalFaceRotation = { pitch: 0, yaw: 0, roll: 0, z: 0 };
 
 export const useFaceTracking = () => {
-  const [hasCamera, setHasCamera] = useState<boolean | null>(null);
-  // Store estimated pitch, yaw, roll, and distance
-  const faceRotationRef = useRef({ pitch: 0, yaw: 0, roll: 0, z: 0 });
+  const {
+    hasCamera, setHasCamera,
+    isFaceDetected, setIsFaceDetected,
+    permissionRequested, setPermissionRequested
+  } = useFaceTrackingStore();
+
+  const faceRotationRef = useRef(globalFaceRotation);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const landmarkerRef = useRef<FaceLandmarker | null>(null);
 
-  useEffect(() => {
+  const startCamera = async () => {
+    setPermissionRequested(true);
     let stream: MediaStream | null = null;
     let isTracking = true;
     let animationFrameId: number;
+    let facesMissingCount = 0;
 
-    const startCamera = async () => {
+    const videoEl = document.createElement('video');
+    videoEl.autoplay = true;
+    videoEl.muted = true;
+    videoEl.playsInline = true;
+    // Flip video horizontally since front camera is usually mirrored
+    videoEl.style.transform = 'scaleX(-1)';
+    videoRef.current = videoEl;
+
       try {
         const vision = await FilesetResolver.forVisionTasks(
           "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm"
@@ -51,6 +68,8 @@ export const useFaceTracking = () => {
               const results = landmarkerRef.current.detectForVideo(videoRef.current, startTimeMs);
 
               if (results.facialTransformationMatrixes && results.facialTransformationMatrixes.length > 0) {
+                setIsFaceDetected(true);
+                facesMissingCount = 0;
                 // The matrix is a 4x4 array representing the pose.
                 // We can extract pitch (x-axis rotation) and yaw (y-axis rotation).
                 const matrix = results.facialTransformationMatrixes[0].data;
@@ -71,17 +90,43 @@ export const useFaceTracking = () => {
                 // The output depends slightly on the camera mirror state and orientation.
                 // We'll flip yaw and roll to match mirroring if needed
                 
-                faceRotationRef.current = {
-                  pitch: pitch,
-                  yaw: -yaw,
-                  roll: -roll,
-                  z: z
-                };
+                globalFaceRotation.pitch = pitch;
+                globalFaceRotation.yaw = -yaw;
+                globalFaceRotation.roll = -roll;
+                globalFaceRotation.z = z;
+
+                faceRotationRef.current = globalFaceRotation;
+              } else {
+                facesMissingCount++;
+                if (facesMissingCount > 10) {
+                  setIsFaceDetected(false);
+                }
               }
             }
           }
-          animationFrameId = requestAnimationFrame(detectFace);
+          if (isTracking) {
+            animationFrameId = requestAnimationFrame(detectFace);
+          }
         };
+
+        const cleanup = () => {
+          isTracking = false;
+          cancelAnimationFrame(animationFrameId);
+          if (stream) {
+            stream.getTracks().forEach((track) => track.stop());
+          }
+          if (videoRef.current) {
+            videoRef.current.srcObject = null;
+          }
+          if (landmarkerRef.current) {
+            landmarkerRef.current.close();
+          }
+        };
+
+        // Attach cleanup to videoRef for unmounting
+        if (videoRef.current) {
+          (videoRef.current as any).cleanup = cleanup;
+        }
 
         videoRef.current?.addEventListener('play', () => {
           detectFace();
@@ -99,32 +144,25 @@ export const useFaceTracking = () => {
           setHasCamera(false);
         }
       }
-    };
+  };
 
-    const videoEl = document.createElement('video');
-    videoEl.autoplay = true;
-    videoEl.muted = true;
-    videoEl.playsInline = true;
-    // Flip video horizontally since front camera is usually mirrored
-    videoEl.style.transform = 'scaleX(-1)';
-    videoRef.current = videoEl;
-
-    startCamera();
-
+  useEffect(() => {
     return () => {
-      isTracking = false;
-      cancelAnimationFrame(animationFrameId);
-      if (stream) {
-        stream.getTracks().forEach((track) => track.stop());
-      }
-      if (videoRef.current) {
-        videoRef.current.srcObject = null;
-      }
-      if (landmarkerRef.current) {
-        landmarkerRef.current.close();
+      if (videoRef.current && (videoRef.current as any).cleanup) {
+        (videoRef.current as any).cleanup();
       }
     };
   }, []);
 
-  return { hasCamera, faceRotationRef };
+  const requestPermission = () => {
+    setPermissionRequested(true);
+    startCamera();
+  };
+
+  const denyPermission = () => {
+    setPermissionRequested(true);
+    setHasCamera(false);
+  };
+
+  return { hasCamera, faceRotationRef, isFaceDetected, requestPermission, denyPermission, permissionRequested };
 };

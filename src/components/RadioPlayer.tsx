@@ -6,18 +6,69 @@ import { LuSpeaker, LuPlay, LuPause, LuSkipForward, LuVolume2, LuVolumeX } from 
 export const RadioPlayer: React.FC = () => {
   const [playing, setPlaying] = useState(false);
   const [volume, setVolume] = useState(0.5);
-  const [isHovered, setIsHovered] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const playerRef = useRef<any>(null);
+
+  const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const isMobile = typeof window !== 'undefined' && 'ontouchstart' in window;
+
+  // Global click listener to close controls when tapping outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      if (isOpen) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("click", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, [isOpen]);
 
   // Floating animation styles
   const floatingStyle = playing
     ? { animation: "float 2s ease-in-out infinite" }
     : {};
 
-  const handlePlayPause = (e: React.MouseEvent) => {
+  const handlePlayPause = (e: React.MouseEvent | React.TouchEvent) => {
     e.stopPropagation();
     setPlaying(!playing);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    e.stopPropagation(); // Prevent closing immediately
+    longPressTimerRef.current = setTimeout(() => {
+      setIsOpen((prev) => !prev);
+    }, 500);
+  };
+
+  const handleTouchEndOrMove = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  };
+
+  const handleMouseEnter = () => {
+    if (!isMobile) {
+      // Small timeout prevents opening if the component slides under the cursor quickly
+      longPressTimerRef.current = setTimeout(() => {
+        setIsOpen(true);
+      }, 100);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (!isMobile) {
+      if (longPressTimerRef.current) {
+        clearTimeout(longPressTimerRef.current);
+        longPressTimerRef.current = null;
+      }
+      setIsOpen(false);
+    }
   };
 
   const handleNextTrack = (e: React.MouseEvent) => {
@@ -45,8 +96,8 @@ export const RadioPlayer: React.FC = () => {
   return (
     <div
       className="relative flex items-center justify-center h-full"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       <style>
         {`
@@ -61,6 +112,9 @@ export const RadioPlayer: React.FC = () => {
       {/* The main icon */}
       <button
         onClick={handlePlayPause}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEndOrMove}
+        onTouchMove={handleTouchEndOrMove}
         className={`relative z-10 flex items-center justify-center w-8 h-8 lg:w-10 lg:h-10 min-[2000px]:w-[2.5vw] min-[2000px]:h-[2.5vw] rounded-full transition-all duration-300 focus:outline-none ${
           playing ? "text-[#F05641]" : "text-gray-500 hover:text-black dark:hover:text-white"
         }`}
@@ -76,9 +130,10 @@ export const RadioPlayer: React.FC = () => {
       {/* Hover Controls Popover */}
       <div
         className={`absolute right-0 top-full mt-2 lg:mt-3 min-[2000px]:mt-[1vh] p-2 lg:p-3 min-[2000px]:p-[0.8vw] bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-black/5 dark:border-white/10 flex items-center gap-3 lg:gap-4 min-[2000px]:gap-[1vw] transition-all duration-300 origin-top-right ${
-          isHovered ? "opacity-100 scale-100 pointer-events-auto" : "opacity-0 scale-95 pointer-events-none"
+          isOpen ? "opacity-100 scale-100 pointer-events-auto" : "opacity-0 scale-95 pointer-events-none"
         }`}
         onClick={(e) => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
       >
         <button
           onClick={handlePlayPause}
