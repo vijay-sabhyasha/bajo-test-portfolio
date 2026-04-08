@@ -7,6 +7,7 @@ import { HiDownload } from "react-icons/hi";
 import { Magnetic } from './Magnetic';
 import { SceneWrapper } from './SceneWrapper';
 import { SignatureBrandObject } from './SignatureBrandObject';
+import { CameraPermissionDialog } from './CameraPermissionDialog';
 
 const ScrambleText = () => {
   const phrases = ['Full Stack Development', 'Backend Development', 'Frontend Development', 'Web Scraping', 'Automation', 'Database Design', 'API Development', 'Performance Optimization', 'Security Best Practices', 'System Architecture', 'DevOps', 'Testing & Debugging', 'Version Control'];
@@ -49,12 +50,28 @@ const ScrambleText = () => {
 };
 
 export const Hero: React.FC = () => {
+  const [cameraPermissionGranted, setCameraPermissionGranted] = useState<boolean>(false);
+  const [showDialog, setShowDialog] = useState<boolean>(true);
+
   return (
     <section className="relative h-screen flex flex-col justify-center px-4 md:px-8 overflow-hidden bg-[#EBEAE9] dark:bg-[#141517]">
+      {showDialog && (
+        <CameraPermissionDialog
+          onAccept={() => {
+            setCameraPermissionGranted(true);
+            setShowDialog(false);
+          }}
+          onDecline={() => {
+            setCameraPermissionGranted(false);
+            setShowDialog(false);
+          }}
+        />
+      )}
+
       {/* 3D Background */}
       <div className="absolute inset-0 z-0">
         <SceneWrapper cameraPosition={[0, 0, 8]} fov={45}>
-          <SignatureBrandObject />
+          <SignatureBrandObject cameraPermissionGranted={cameraPermissionGranted} />
         </SceneWrapper>
       </div>
 

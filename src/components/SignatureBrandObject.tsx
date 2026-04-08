@@ -5,11 +5,11 @@ import * as THREE from 'three';
 import { useTheme } from '../ThemeContext';
 import { useFaceTracking } from '../hooks/useFaceTracking';
 
-export const SignatureBrandObject = () => {
+export const SignatureBrandObject = ({ cameraPermissionGranted }: { cameraPermissionGranted: boolean }) => {
   const meshRef = useRef<THREE.Group>(null);
   const { theme } = useTheme();
 
-  const { hasCamera, faceRotationRef } = useFaceTracking();
+  const { hasCamera, faceRotationRef } = useFaceTracking(cameraPermissionGranted);
 
   const { scene } = useGLTF('/models/eyes2.glb');
 
