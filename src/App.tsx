@@ -11,6 +11,8 @@ import { ThemeProvider } from './ThemeContext';
 import Bento from './components/About/Bento';
 import { PrivacyPolicy } from './components/PrivacyPolicy';
 import { TermsAndConditions } from './components/TermsAndConditions';
+import { PermissionDialog } from './components/PermissionDialog';
+import { MobileDesktopWarning } from './components/MobileDesktopWarning';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -43,6 +45,8 @@ export default function App() {
       <Router>
         <ScrollToTop />
         <main className="relative min-h-screen font-sans">
+          <PermissionDialog />
+          <MobileDesktopWarning />
           <CustomCursor />
           <Navbar />
           <Routes>

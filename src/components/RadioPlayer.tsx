@@ -35,7 +35,7 @@ export const RadioPlayer: React.FC = () => {
   // combine repel + float
   const finalY = useTransform(
     [springY, floatY],
-    ([repel, float]) => repel + float
+    ([repel, float]) => (repel as number) + (float as number)
   );
 
   // ✅ repel logic (desktop only)
