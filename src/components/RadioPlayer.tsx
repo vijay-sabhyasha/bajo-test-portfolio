@@ -11,18 +11,65 @@ export const RadioPlayer: React.FC = () => {
   const [isHovered, setIsHovered] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const playerRef = useRef<any>(null);
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    const handleOutsideClick = () => {
+      setIsHovered(false);
+    };
+    if (isHovered) {
+      document.addEventListener("click", handleOutsideClick);
+      document.addEventListener("touchstart", handleOutsideClick);
+    }
+    return () => {
+      document.removeEventListener("click", handleOutsideClick);
+      document.removeEventListener("touchstart", handleOutsideClick);
+    };
+  }, [isHovered]);
 
   const handlePlayPause = (e: React.MouseEvent) => {
     e.stopPropagation();
     setPlaying(!playing);
   };
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    e.stopPropagation();
+    hoverTimeoutRef.current = setTimeout(() => {
+      setIsHovered(true);
+    }, 500); // 500ms for long press
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    e.stopPropagation();
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    // If the user scrolls, cancel the long press
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+  };
+
   const handleNextTrack = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (playerRef.current) {
       const internalPlayer = playerRef.current.getInternalPlayer();
+      // Depending on how YouTube iframe API exposes the player, the actual methods are on it.
+      // Often internalPlayer is the YouTube player object itself.
       if (internalPlayer && typeof internalPlayer.nextVideo === "function") {
         internalPlayer.nextVideo();
+      } else if (internalPlayer && internalPlayer.playerInfo) {
+        // We might be dealing with the raw YT.Player instance
+        try {
+          // If the getInternalPlayer returns the div wrapper or something, we should check if we can skip.
+          // Another common pattern:
+          (internalPlayer as any).nextVideo();
+        } catch (e) {
+          console.error("Could not call nextVideo on internalPlayer", e);
+        }
       } else {
         try {
           internalPlayer.target.nextVideo();
@@ -117,37 +164,51 @@ export const RadioPlayer: React.FC = () => {
       </style>
       
       {/* We use framer-motion layoutId to automatically morph between the two positions */}
-      
-      {!playing && (
-        <div className="relative flex items-center justify-center w-8 h-8 lg:w-10 lg:h-10 min-[2000px]:w-[2.5vw] min-[2000px]:h-[2.5vw]">
-          <motion.div
-            layoutId="radio-player"
-            className="relative"
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-            transition={{ type: "spring", stiffness: 300, damping: 25 }}
-          >
-            {mainIconContent}
-            {popoverContent}
-          </motion.div>
-        </div>
-      )}
+      <AnimatePresence>
+        {!playing && (
+          <div className="relative flex items-center justify-center w-8 h-8 lg:w-10 lg:h-10 min-[2000px]:w-[2.5vw] min-[2000px]:h-[2.5vw]">
+            <motion.div
+              key="radio-player-nav"
+              layoutId="radio-player"
+              className="relative"
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+              onTouchMove={handleTouchMove}
+              onClick={(e) => e.stopPropagation()}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            >
+              {mainIconContent}
+              {/* Don't render popover content in navbar, only in floating mode to avoid overflow issues, or only when playing */}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Render the floating state via portal so it escapes the backdrop-filter */}
-      {playing && createPortal(
-        <motion.div
-          layoutId="radio-player"
-          className="fixed right-4 lg:right-6 min-[2000px]:right-[4vw] z-[100] floating-bounce"
-          style={{ top: "50%" }}
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-          transition={{ type: "spring", stiffness: 300, damping: 25 }}
-        >
-          {mainIconContent}
-          {popoverContent}
-        </motion.div>,
-        document.body
-      )}
+      <AnimatePresence>
+        {playing && createPortal(
+          <div className="fixed right-4 lg:right-6 min-[2000px]:right-[4vw] z-[100]" style={{ top: "50%" }}>
+            <motion.div
+              key="radio-player-floating"
+              layoutId="radio-player"
+              className="floating-bounce"
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+              onTouchMove={handleTouchMove}
+              onClick={(e) => e.stopPropagation()}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            >
+              {mainIconContent}
+              {popoverContent}
+            </motion.div>
+          </div>,
+          document.body
+        )}
+      </AnimatePresence>
 
       {/* Hidden YouTube Player (kept out of layout morphing to never unmount/reload) */}
       <div className="hidden">
@@ -165,7 +226,7 @@ export const RadioPlayer: React.FC = () => {
                 listType: 'playlist',
                 list: 'PLtd07o84uPAEz3PeRm87JkSSHqHdJ1Rhu'
               }
-            }
+            } as any
           }}
         />
       </div>

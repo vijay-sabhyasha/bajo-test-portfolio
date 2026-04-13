@@ -59,7 +59,7 @@ export const SceneWrapper: React.FC<SceneWrapperProps> = ({
           )}
 
           {/* Environment map for reflections */}
-          <Environment preset={theme === 'dark' ? "city" : "studio"} />
+          <Environment preset="city" />
 
           {/* The actual 3D content */}
           <group scale={scale}>

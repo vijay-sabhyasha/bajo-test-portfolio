@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
 
-export const useFaceTracking = () => {
+export const useFaceTracking = (permissionGranted: boolean) => {
   const [hasCamera, setHasCamera] = useState<boolean | null>(null);
   // Store estimated pitch, yaw, roll, and distance
   const faceRotationRef = useRef({ pitch: 0, yaw: 0, roll: 0, z: 0 });
@@ -12,6 +12,11 @@ export const useFaceTracking = () => {
     let stream: MediaStream | null = null;
     let isTracking = true;
     let animationFrameId: number;
+
+    if (!permissionGranted) {
+      setHasCamera(false);
+      return;
+    }
 
     const startCamera = async () => {
       try {
@@ -124,7 +129,7 @@ export const useFaceTracking = () => {
         landmarkerRef.current.close();
       }
     };
-  }, []);
+  }, [permissionGranted]);
 
   return { hasCamera, faceRotationRef };
 };
