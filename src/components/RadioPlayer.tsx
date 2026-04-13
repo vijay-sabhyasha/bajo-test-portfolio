@@ -3,63 +3,12 @@ import { createPortal } from "react-dom";
 import ReactPlayer from "react-player";
 import { FaRadio } from "react-icons/fa6";
 import { LuSpeaker } from "react-icons/lu";
-import { motion, useSpring, useMotionValue } from "motion/react";
+import { motion } from "motion/react";
 
 export const RadioPlayer: React.FC = () => {
   const [playing, setPlaying] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const playerRef = useRef<any>(null);
-  const floatingRef = useRef<HTMLDivElement>(null);
-
-  // Springs for repelling motion
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const springConfig = { damping: 20, stiffness: 200 };
-  const springX = useSpring(x, springConfig);
-  const springY = useSpring(y, springConfig);
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!playing || !floatingRef.current) {
-        x.set(0);
-        y.set(0);
-        return;
-      }
-
-      const { clientX, clientY } = e;
-      const rect = floatingRef.current.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-
-      const distanceX = clientX - centerX;
-      const distanceY = clientY - centerY;
-      const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
-
-      const threshold = 150; // Distance within which the repelling starts
-
-      if (distance < threshold) {
-        // Calculate a repelling vector
-        // The closer the mouse, the stronger the repel
-        const force = (threshold - distance) / threshold;
-        // Direction is away from the mouse
-        const dirX = -distanceX / distance;
-        const dirY = -distanceY / distance;
-
-        const maxRepelDistance = 100;
-        x.set(dirX * force * maxRepelDistance);
-        y.set(dirY * force * maxRepelDistance);
-      } else {
-        // Return to original position slowly
-        x.set(0);
-        y.set(0);
-      }
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-    };
-  }, [playing, x, y]);
 
   const handlePlayPause = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -115,9 +64,8 @@ export const RadioPlayer: React.FC = () => {
       {playing && createPortal(
         <motion.div
           layoutId="radio-player"
-          ref={floatingRef}
           className="fixed right-4 lg:right-6 min-[2000px]:right-[4vw] z-[100] floating-bounce"
-          style={{ top: "50%", x: springX, y: springY }}
+          style={{ top: "50%" }}
           transition={{ type: "spring", stiffness: 300, damping: 25 }}
         >
           {mainIconContent}
