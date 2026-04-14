@@ -7,6 +7,7 @@ import { HiDownload } from "react-icons/hi";
 import { Magnetic } from './Magnetic';
 import { SceneWrapper } from './SceneWrapper';
 import { SignatureBrandObject } from './SignatureBrandObject';
+import { TutorialOverlay } from './TutorialOverlay';
 
 const ScrambleText = () => {
   const phrases = ['Full Stack Development', 'Backend Development', 'Frontend Development', 'Web Scraping', 'Automation', 'Database Design', 'API Development', 'Performance Optimization', 'Security Best Practices', 'System Architecture', 'DevOps', 'Testing & Debugging', 'Version Control'];
@@ -109,7 +110,9 @@ export const Hero: React.FC = () => {
         </motion.div>
       </div>
 
-      <div className="absolute bottom-8 md:bottom-12 min-[2000px]:bottom-[5vh] right-4 md:right-7 min-[2000px]:right-[4vw] z-20">
+      <TutorialOverlay />
+
+      <div className="absolute bottom-8 md:bottom-12 min-[2000px]:bottom-[5vh] right-4 md:right-7 min-[2000px]:right-[4vw] z-20 pointer-events-auto">
         <Magnetic strength={0.2}>
           <a 
             href="/Vijay_Singh_Resume.pdf"
