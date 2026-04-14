@@ -142,7 +142,7 @@ export const RadioPlayer: React.FC = () => {
       <div className="hidden">
         <ReactPlayer
           ref={playerRef}
-          src="https://www.youtube.com/playlist?list=PLtd07o84uPAG1isaDESpn6Rz69w_tqyfq"
+          src="https://www.youtube.com/playlist?list=PLtd07o84uPAFvst7CEJ9VCxKQA-m1TVyn"
           playing={playing}
           width="0"
           height="0"
