@@ -45,13 +45,13 @@ export default function App() {
       <Router>
         <ScrollToTop />
         <main className="relative min-h-screen font-sans">
-          <PermissionDialog />
           <MobileDesktopWarning />
           <CustomCursor />
           <Navbar />
           <Routes>
             <Route path="/" element={
               <>
+                <PermissionDialog />
                 <Hero />
                 <Bento />
                 <Experience />

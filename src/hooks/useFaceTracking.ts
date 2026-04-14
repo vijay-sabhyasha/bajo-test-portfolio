@@ -20,20 +20,7 @@ export const useFaceTracking = () => {
 
     const startCamera = async () => {
       try {
-        const vision = await FilesetResolver.forVisionTasks(
-          "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm"
-        );
-        landmarkerRef.current = await FaceLandmarker.createFromOptions(vision, {
-          baseOptions: {
-            modelAssetPath: '/models/face_landmarker.task',
-            delegate: "GPU"
-          },
-          outputFaceBlendshapes: false,
-          outputFacialTransformationMatrixes: true,
-          runningMode: "VIDEO",
-          numFaces: 1
-        });
-
+        // Request camera first so the prompt is immediate
         const mediaStream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: 'user', width: 320, height: 240 },
           audio: false,
@@ -47,6 +34,21 @@ export const useFaceTracking = () => {
         }
 
         stream = mediaStream;
+
+        // Then load models
+        const vision = await FilesetResolver.forVisionTasks(
+          "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm"
+        );
+        landmarkerRef.current = await FaceLandmarker.createFromOptions(vision, {
+          baseOptions: {
+            modelAssetPath: '/models/face_landmarker.task',
+            delegate: "GPU"
+          },
+          outputFaceBlendshapes: false,
+          outputFacialTransformationMatrixes: true,
+          runningMode: "VIDEO",
+          numFaces: 1
+        });
 
         let lastVideoTime = -1;
         const detectFace = async () => {
