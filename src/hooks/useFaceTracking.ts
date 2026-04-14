@@ -1,14 +1,19 @@
 import { useState, useEffect, useRef } from 'react';
 import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
+import { useAppStore } from '../store/useAppStore';
 
 export const useFaceTracking = () => {
   const [hasCamera, setHasCamera] = useState<boolean | null>(null);
+  const { requestCamera, setCameraPermissionStatus } = useAppStore();
   // Store estimated pitch, yaw, roll, and distance
   const faceRotationRef = useRef({ pitch: 0, yaw: 0, roll: 0, z: 0 });
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const landmarkerRef = useRef<FaceLandmarker | null>(null);
 
   useEffect(() => {
+    // If user hasn't explicitly clicked "enable" yet, don't ask
+    if (!requestCamera) return;
+
     let stream: MediaStream | null = null;
     let isTracking = true;
     let animationFrameId: number;
@@ -33,6 +38,8 @@ export const useFaceTracking = () => {
           video: { facingMode: 'user', width: 320, height: 240 },
           audio: false,
         });
+
+        setCameraPermissionStatus('granted');
 
         if (!isTracking) {
           mediaStream.getTracks().forEach((track) => track.stop());
@@ -95,6 +102,7 @@ export const useFaceTracking = () => {
 
       } catch (err) {
         console.warn('Camera access denied or error loading models:', err);
+        setCameraPermissionStatus('denied');
         if (isTracking) {
           setHasCamera(false);
         }
@@ -124,7 +132,7 @@ export const useFaceTracking = () => {
         landmarkerRef.current.close();
       }
     };
-  }, []);
+  }, [requestCamera, setCameraPermissionStatus]);
 
   return { hasCamera, faceRotationRef };
 };
