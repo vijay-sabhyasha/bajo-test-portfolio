@@ -6,7 +6,7 @@ export const useFaceTracking = () => {
   const [hasCamera, setHasCamera] = useState<boolean | null>(null);
   const { requestCamera, setCameraPermissionStatus } = useAppStore();
   // Store estimated pitch, yaw, roll, and distance
-  const faceRotationRef = useRef({ pitch: 0, yaw: 0, roll: 0, z: 0 });
+  const faceRotationRef = useRef({ pitch: 0, yaw: 0, roll: 0, z: 0, isDetected: false });
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const landmarkerRef = useRef<FaceLandmarker | null>(null);
 
@@ -84,8 +84,11 @@ export const useFaceTracking = () => {
                   pitch: pitch,
                   yaw: -yaw,
                   roll: -roll,
-                  z: z
+                  z: z,
+                  isDetected: true
                 };
+              } else {
+                faceRotationRef.current.isDetected = false;
               }
             }
           }

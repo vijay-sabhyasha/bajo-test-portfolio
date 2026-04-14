@@ -24,7 +24,7 @@ export const SignatureBrandObject = () => {
   }, [scene]);
 
   useFrame((state) => {
-    if (hasCamera) {
+    if (hasCamera && faceRotationRef.current.isDetected) {
 
       targetRotation.current.x = -faceRotationRef.current.pitch * 1.5;
       targetRotation.current.y = -faceRotationRef.current.yaw * 1.5;
