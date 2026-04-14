@@ -17,7 +17,7 @@ const GithubCard = () => {
         <RiGithubLine className="w-3.5 h-3.5 lg:w-4 lg:h-4 opacity-40" />
       </div>
 
-      <div className="flex justify-center w-full overflow-hidden">
+      <div className="flex justify-center w-full overflow-hidden min-h-[105px]">
         <a
           href="https://github.com/vijay-sabhyasha"
           target="_blank"
@@ -31,6 +31,13 @@ const GithubCard = () => {
             showTotalCount={false}
             showColorLegend={false}
             colorScheme={theme}
+            loading={false}
+            renderBlock={(block, activity) => (
+              <div
+                {...block}
+                className={!activity ? "animate-pulse opacity-50" : undefined}
+              />
+            )}
           />
         </a>
       </div>

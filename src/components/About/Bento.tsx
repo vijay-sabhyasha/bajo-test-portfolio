@@ -62,7 +62,8 @@ const Bento: React.FC = () => {
               key={card.id}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: index * 0.1 }}
+              viewport={{ once: true, margin: "300px" }}
+              transition={{ duration: 0.3, delay: index * 0.05 }}
               className={`${card.className} group relative rounded-3xl h-full`}
             >
               {/* Glow background */}
